@@ -48,13 +48,13 @@ def measure_latency(test_pool):
   return latency_ms
 
 def get_num_backfilling():
-  cmd = "ceph pg stat | tr ',:' '\n' | awk '/backfilling/ { total += $1}; END { print total}'"
+  cmd = "ceph pg stat | tr ',:' '\n' | awk '/backfilling/ || /backfill_wait/ { total += $1}; END { print total}'"
   out = commands.getoutput(cmd)
   if not out:
     n = 0
   else:
     n = int(out)
-  print "get_num_backfilling: PGs currently backfilling: %s" % n
+  print "get_num_backfilling: PGs currently backfilling and backfill_wait: %s" % n
   return n
 
 def crush_reweight(osd, weight, really):
@@ -83,7 +83,7 @@ def reweight_osds(osds, max_pgs_backfilling, max_latency, delta_weight, target_w
   # check num pgs backfilling
   npgs = get_num_backfilling()
   if npgs > max_pgs_backfilling:
-    print "reweight_osds: npgs backfilling is too high, trying again later"
+    print "reweight_osds: npgs backfilling or backfill_wait is too high, trying again later"
     return
 
   # check the latency
@@ -171,7 +171,7 @@ def main(argv):
   if allowed_days:
     allowed_days = map(int, allowed_days)
 
-  print 'Draining OSDs: ', drain_osds
+  print 'Reweighting OSDs: ', drain_osds
   print 'Max latency (ms): ', max_latency
   print 'Max PGs backfilling: ', max_pgs_backfilling
   print 'Delta weight:', delta_weight
