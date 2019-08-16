@@ -1,9 +1,9 @@
 #!/usr/bin/python
 #
-# ceph-gentle-drain
+# ceph-gentle-reweight
 # Author: Dan van der Ster <daniel.vanderster@cern.ch>
 #
-# Slowly drain a list of OSDs causing minimal impact in a ceph cluster.
+# Slowly reweight a list of OSDs causing minimal impact in a ceph cluster.
 #
 
 import os, sys, getopt, commands, json, time, datetime
@@ -143,6 +143,20 @@ def main(argv):
       usage()
     elif opt in ("-o", "--osds"):
       drain_osds = arg.split(',')
+    elif opt in ("-ol", "--osdlist"):
+      drain_osds = [] 
+      try:
+        start_osd = opt.split("..")
+        start_osd = int(start_osd)
+        end_osd = opt.split("..")[1]
+        end_osd =  int(end_osd)
+      except:
+        print("Bad value or non-integer supplied for osd list. Must provide values in format: start..end")
+        print("Example: 100..200")
+        sys.exit()
+      for i in range(start_osd, end_osd):
+        drain_osds.append("osd." +i)
+      print(drain_osds) 
     elif opt in ("-l", "--latency"):
       max_latency = int(arg)
     elif opt in ("-b", "--backfills"):
