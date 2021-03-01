@@ -8,4 +8,4 @@ osd_uuid=`lsblk -o NAME /dev/sdf | sed -e 's/--/-/g' | cut -d'-' -f9-13 | sed -e
 echo "Your OSD FSID is:"
 echo $osd_uuid
 # find the corresponding osd
-for i in `df -h | egrep -o ceph-[0-9]{3} | cut -d- -f2`; do ceph osd find $i | grep -C5 $osd_uuid; done
+for i in `df -h | egrep -o ceph-[0-9]+ | cut -d- -f2`; do ceph osd find $i | grep -C5 $osd_uuid; done
